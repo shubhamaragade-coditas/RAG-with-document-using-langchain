@@ -1,0 +1,6 @@
+langchain
+langchain-groq
+python-dotenv
+PyPDF2
+langchain-ai21
+pypdfium2
