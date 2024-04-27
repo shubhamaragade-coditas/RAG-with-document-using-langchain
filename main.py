@@ -1,4 +1,3 @@
-import os
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_ai21 import AI21Embeddings
@@ -27,7 +26,10 @@ def text_to_chunks(data: PyPDFium2Loader) -> list[str]:
 def generate_embeddings(chunks: list[str]) -> FAISS:
     """Generates embeddings for a list of text chunks using an AI21Embeddings model."""
     embedding_model: AI21Embeddings = AI21Embeddings()
-    vector_db: FAISS = FAISS.from_documents(documents=chunks, embedding=embedding_model)
+    try:
+        vector_db: FAISS = FAISS.from_documents(documents=chunks, embedding=embedding_model)
+    except Exception as e:
+        print("An error occurred:", str(e))
     return vector_db
 
 PROMPT:str = ""
@@ -53,9 +55,6 @@ def get_answer_from_AI(
     return result["result"]
 
     
-
-
-
 asyncio.run(get_prompt())
 
 loader: PyPDFium2Loader = PyPDFium2Loader("Story.pdf")  # Type hint for loader variable
@@ -64,11 +63,13 @@ data: str = loader.load()  # Type hint for data variable after loading
 chunks: list[str] = text_to_chunks(data=data)
 document_vector_db: FAISS = generate_embeddings(chunks=chunks)
 
-ask: bool = True
-while ask:
+continue_asking: bool = True
+while continue_asking:
     query: str = input("Enter your questions: ")  # Type hint for query input
     answer: str = get_answer_from_AI(vector_db=document_vector_db, question=query)
     print(answer)
 
-    ask = int(input("Do you want to ask more?\n 0. No\n 1. Yes\n  "))
-
+    try:
+        continue_asking = int(input("Do you want to ask more?\n 0. No\n 1. Yes\n  "))
+    except Exception as e:
+        print("Error occured", str(e))
